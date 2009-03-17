@@ -1,0 +1,10 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2584
+
+Mark items in the quickfix and location lists with signs -- those lists 
+are filled by, e.g., the :make command. Other lists can be configured 
+via the |g:quickfixsigns_lists| variable. By default, quickfixsigns also 
+displays signs for the marks a-zA-Z.
+
+The attached text is displayed in a balloon when hovering with the mouse 
+over the sign.
+
