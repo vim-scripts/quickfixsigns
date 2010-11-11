@@ -1,9 +1,14 @@
 *quickfixsigns.txt*   Mark quickfix & location list items with signs
                       Author: Thomas Link, micathom at gmail com
 
-Mark items in the quickfix and location lists with signs. Other lists 
-can be configured via the |g:quickfixsigns_lists| variable. By default, 
-quickfixsigns also displays signs for the marks a-zA-Z.
+Mark intersting lines with signs:
+
+    - items in the quickfix and location lists (e.g. compilation errors)
+    - marks a-zA-Z
+    - relative line numbers
+    - changes (with respect to the version in the VCS)
+
+Other lists can be configured via the |g:quickfixsigns_lists| variable.
 
 The attached text ist displayed in a balloon -- it is possible though 
 that other plugins that set 'balloonexpr' disable this feature.
@@ -14,6 +19,11 @@ to change the following signs' definition in your |vimrc| file:
     QFS_QFL ... Entries in the |quickfix| list
     QFS_LOC ... Entries in the |location-list|
     QFS_Mark_[a-zA-Z] ... Marks
+
+
+CREDITS:
+quickfixsigns includes some icons from the open icon library. See 
+http://openiconlibrary.sourceforge.net for details.
 
 
 -----------------------------------------------------------------------
@@ -42,6 +52,7 @@ Contents~
         g:quickfixsigns_balloon .............. |g:quickfixsigns_balloon|
         g:quickfixsigns_max .................. |g:quickfixsigns_max|
         g:quickfixsigns_blacklist_buffer ..... |g:quickfixsigns_blacklist_buffer|
+        g:quickfixsigns_icons ................ |g:quickfixsigns_icons|
         QuickfixsignsSelect .................. |QuickfixsignsSelect()|
         QuickfixsignsUpdate .................. |QuickfixsignsUpdate()|
         QuickfixsignsSet ..................... |QuickfixsignsSet()|
@@ -58,7 +69,6 @@ Contents~
         g:quickfixsigns#marks#marks .......... |g:quickfixsigns#marks#marks|
         quickfixsigns#marks#GetList .......... |quickfixsigns#marks#GetList()|
         quickfixsigns#marks#GetSign .......... |quickfixsigns#marks#GetSign()|
-        quickfixsigns#marks#GetID ............ |quickfixsigns#marks#GetID()|
 
 
 ========================================================================
@@ -107,15 +117,15 @@ g:quickfixsigns_class_rel      (default: {'sign': '*s:RelSign', 'get': 's:GetRel
     Signs for number of lines relative to the current line.
 
                                                     *g:quickfixsigns_class_qfl*
-g:quickfixsigns_class_qfl      (default: {'sign': 'QFS_QFL', 'get': 'getqflist()', 'event': ['BufEnter']})
+g:quickfixsigns_class_qfl      (default: {'sign': 'QFS_QFL', 'get': 'getqflist()', 'event': ['BufEnter', 'CursorHold', 'CursorHoldI', 'QuickFixCmdPost'], 'all_buffers': 1})
     Signs for |quickfix| lists.
 
                                                     *g:quickfixsigns_class_loc*
-g:quickfixsigns_class_loc      (default: {'sign': 'QFS_LOC', 'get': 'getloclist(0)', 'event': ['BufEnter']})
+g:quickfixsigns_class_loc      (default: {'sign': 'QFS_LOC', 'get': 'getloclist(0)', 'event': ['BufEnter', 'CursorHold', 'CursorHoldI']})
     Signs for |location| lists.
 
                                                     *g:quickfixsigns_class_cursor*
-g:quickfixsigns_class_cursor   (default: {'sign': 'QFS_CURSOR', 'get': 's:GetCursor()', 'event': g:quickfixsigns_events})
+g:quickfixsigns_class_cursor   (default: {'sign': 'QFS_CURSOR', 'get': 's:GetCursor()', 'event': ['BufEnter', 'CursorHold', 'CursorHoldI']})
     Sign for the current cursor position
 
                                                     *g:quickfixsigns_balloon*
@@ -131,6 +141,12 @@ g:quickfixsigns_max            (default: 100)
                                                     *g:quickfixsigns_blacklist_buffer*
 g:quickfixsigns_blacklist_buffer (default: '^__.*__$')
     Don't show signs in buffers matching this |regexp|.
+
+                                                    *g:quickfixsigns_icons*
+g:quickfixsigns_icons          (default: {})
+    A dictionary {TYPE => IMAGE_FILENAME} that is used to select 
+    icons that should be displayed as signs.
+    Defaults to empty on windows and non-gui versions.
 
                                                     *QuickfixsignsSelect()*
 QuickfixsignsSelect(list)
@@ -216,9 +232,6 @@ quickfixsigns#marks#GetList()
 
                                                     *quickfixsigns#marks#GetSign()*
 quickfixsigns#marks#GetSign(item)
-
-                                                    *quickfixsigns#marks#GetID()*
-quickfixsigns#marks#GetID(item)
 
 
 
