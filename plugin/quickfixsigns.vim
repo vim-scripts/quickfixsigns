@@ -4,14 +4,14 @@
 " @GIT:         http://github.com/tomtom/quickfixsigns_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2009-03-14.
-" @Last Change: 2010-11-15.
-" @Revision:    686
+" @Last Change: 2010-12-28.
+" @Revision:    725
 " GetLatestVimScripts: 2584 1 :AutoInstall: quickfixsigns.vim
 
 if &cp || exists("loaded_quickfixsigns") || !has('signs')
     finish
 endif
-let loaded_quickfixsigns = 11
+let loaded_quickfixsigns = 12
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -48,7 +48,8 @@ if !exists('g:quickfixsigns_classes')
     "          compatible with |getqflist()|.
     "   event: The event on which signs of this type should be set. 
     "          Possible values: BufEnter, any
-    let g:quickfixsigns_classes = ['cursor', 'qfl', 'loc', 'marks', 'vcsdiff']   "{{{2
+    "   test:  Update the sign only if the expression is true.
+    let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'vcsdiff', 'breakpoints']   "{{{2
     " let g:quickfixsigns_classes = ['rel', 'qfl', 'loc', 'marks']   "{{{2
 endif
 
@@ -119,7 +120,8 @@ if !exists('g:quickfixsigns_icons')
                 let g:quickfixsigns_icons = {
                             \ 'qfl': s:icons_dir .'status/dialog-error-5.png',
                             \ 'loc': s:icons_dir .'status/dialog-warning-4.png',
-                            \ 'cursor': s:icons_dir .'actions/go-next-4.png'
+                            \ 'cursor': s:icons_dir .'actions/go-next-4.png',
+                            \ 'breakpoint': s:icons_dir .'actions/media-playback-pause-3.png'
                             \ }
             endif
             unlet s:icons_dir
@@ -138,7 +140,6 @@ endif
 " ----------------------------------------------------------------------
 let s:quickfixsigns_base = 5272
 let g:quickfixsigns_register = {}
-let s:cursor_last_line = 0
 let s:last_run = {}
 
 
@@ -207,25 +208,42 @@ function! QuickfixsignsUpdate(...) "{{{3
 endf
 
 
+" :display: QuickfixsignsSet(event, ?classes=[])
 " (Re-)Set the signs that should be updated at a certain event. If event 
 " is empty, update all signs.
 "
 " Normally, the end-user doesn't need to call this function.
-function! QuickfixsignsSet(event) "{{{3
+function! QuickfixsignsSet(event, ...) "{{{3
     if exists("b:noquickfixsigns") && b:noquickfixsigns
         return
     endif
     if bufname('%') =~ g:quickfixsigns_blacklist_buffer
         return
     endif
+    if !exists('b:quickfixsigns_last_line')
+        let b:quickfixsigns_last_line = 0
+    endif
     " let lz = &lazyredraw
     " set lz
     " try
         let bufnr = bufnr('%')
         let anyway = empty(a:event)
+        " TLogVAR anyway, a:event
         for [key, def] in s:ListValues()
             " TLogVAR key, def
-            if anyway || index(get(def, 'event', ['BufEnter']), a:event) != -1
+            if anyway
+                let set = 1
+            elseif index(get(def, 'event', ['BufEnter']), a:event) != -1
+                let set = !has_key(def, 'test') || eval(def.test)
+            else
+                let set = 0
+            endif
+            if a:0 >= 1 && !empty(a:1)
+                let select = index(a:1, key) != -1
+            else
+                let select = 1
+            endif
+            if set && select
                 let t_d = get(def, 'timeout', 0)
                 let t_l = localtime()
                 let t_s = string(def)
@@ -264,6 +282,7 @@ function! QuickfixsignsSet(event) "{{{3
     "         let &lz = lz
     "     endif
     " endtry
+    let b:quickfixsigns_last_line = line('.')
 endf
 
 
@@ -293,7 +312,6 @@ endf
 
 function! s:GetCursor() "{{{3
     let pos = getpos('.')
-    let s:cursor_last_line = pos[1]
     return [{'bufnr': bufnr('%'), 'lnum': pos[1], 'col': pos[2], 'text': 'Current line'}]
 endf
 
@@ -488,48 +506,3 @@ augroup END
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-finish
-
-CHANGES:
-0.1
-- Initial release
-
-0.2
-- exists('b:quickfixsigns_balloonexpr')
-
-0.3
-- Old signs weren't always removed
-- Avoid "flicker" etc.
-- g:quickfixsigns_max: Don't display signs if the list is longer than n items.
-Incompatible changes:
-- Removed g:quickfixsigns_show_marks variable
-- g:quickfixsigns_marks: Marks that should be used for signs
-- g:quickfixsigns_lists: event field is a list
-- g:quickfixsigns_lists: timeout field: don't re-display this list more often than n seconds
-
-0.4
-- FIX: Error when g:quickfixsigns_marks = [] (thanks Ingo Karkat)
-- s:ClearBuffer: removed old code
-- QuickfixsignsMarks(state): Switch the display of marks on/off.
-
-0.5
-- Set balloonexpr only if empty (don't try to be smart)
-- Disable CursorMoved(I) events, when &lazyredraw isn't set.
-
-0.6
-- Don't require qfl.item.text to be set
-
-0.7
-- b:noquickfixsigns: If true, disable quickfixsigns for the current 
-buffer (patch by Sergey Khorev; must be set before entering a buffer)
-- b:quickfixsigns_ignore_marks: A list of ignored marks (per buffer)
-
-0.8
-- Support for relative line numbers
-- QuickfixsignsSet command
-- quickfixsigns#RelNumbersOnce()
-
-0.9
-- Support for vcs diff (this requires either b:vcs_type or 
-b:VCSCommandVCSType to be set to a supported vcs, e.g. git)
-
