@@ -6,8 +6,8 @@ Mark intersting lines with signs:
 
     - items in the quickfix and location lists (e.g. compilation errors)
     - marks a-zA-Z
-    - relative line numbers
-    - changes (with respect to the version in the VCS)
+    - relative line numbers (remove marks after the cursor moved)
+    - changes (with respect to the version in the VCS: git, mercurial, subversion)
 
 Other lists can be configured via the |g:quickfixsigns_lists| variable.
 
