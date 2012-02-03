@@ -2,15 +2,17 @@ This is a mirror of http://www.vim.org/scripts/script.php?script_id=2584
 
 http://github.com/tomtom/quickfixsigns_vim
 
-Mark intersting lines with signs:
+Display |signs| at interesting lines:
 
-    - items in the quickfix and location lists (e.g. compilation errors)
-    - marks a-zA-Z
-    - relative line numbers (remove marks after the cursor moved)
-    - changes (with respect to the version in the VCS: git, mercurial, subversion)
+    - items in the |quickfix| and |location-lists| (e.g. compilation errors)
+    - |marks| a-zA-Z
+    - changes (given the file is under a VCS like git, svn, mercurial, 
+      or bazaar)
+    - relative line numbers (show numbers only until the cursor moves)
+    - etc.
 
 Other lists can be configured via the |g:quickfixsigns_lists| variable.
 
-The attached text is displayed in a balloon when hovering with the mouse 
-over the sign.
+The text attached to a quickfix or location-list entry is displayed in a 
+balloon via 'balloonexpr'.
 
