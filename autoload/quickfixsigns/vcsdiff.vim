@@ -3,8 +3,8 @@
 " @vcs:         http://vcshub.com/tomtom/quickfixsigns_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-05-08.
-" @Last Change: 2012-02-02.
-" @Revision:    387
+" @Last Change: 2012-10-02.
+" @Revision:    401
 
 if exists('g:quickfixsigns#vcsdiff#loaded')
     finish
@@ -52,7 +52,7 @@ endif
 
 if !exists('g:quickfixsigns#vcsdiff#cmd_separator')
     " Command to join two shell commands.
-    let g:quickfixsigns#vcsdiff#cmd_separator = &sh =~ 'sh' ? '&&' : ';'  "{{{2
+    let g:quickfixsigns#vcsdiff#cmd_separator = '&&'  "{{{2
 endif
 
 
@@ -75,9 +75,15 @@ if !exists('g:quickfixsigns#vcsdiff#highlight')
 endif
 
 
-exec 'sign define QFS_VCS_ADD text=+ texthl='. g:quickfixsigns#vcsdiff#highlight.ADD
-exec 'sign define QFS_VCS_DEL text=- texthl='. g:quickfixsigns#vcsdiff#highlight.DEL
-exec 'sign define QFS_VCS_CHANGE text== texthl='. g:quickfixsigns#vcsdiff#highlight.CHANGE
+if index(g:quickfixsigns_signs, 'QFS_VCS_ADD') == -1
+    exec 'sign define QFS_VCS_ADD text=+ texthl='. g:quickfixsigns#vcsdiff#highlight.ADD
+endif
+if index(g:quickfixsigns_signs, 'QFS_VCS_DEL') == -1
+    exec 'sign define QFS_VCS_DEL text=- texthl='. g:quickfixsigns#vcsdiff#highlight.DEL
+endif
+if index(g:quickfixsigns_signs, 'QFS_VCS_CHANGE') == -1
+    exec 'sign define QFS_VCS_CHANGE text== texthl='. g:quickfixsigns#vcsdiff#highlight.CHANGE
+endif
 
 
 " :nodoc:
@@ -107,8 +113,9 @@ function! quickfixsigns#vcsdiff#GuessType() "{{{3
         else
             let type = ''
         endif
+        " TLogVAR type
         if (exists('b:quickfixsigns#vcsdiff#guess_type') ? b:quickfixsigns#vcsdiff#guess_type : g:quickfixsigns#vcsdiff#guess_type) && empty(type)
-            let path = escape(expand('%:p'), ',:') .';'
+            let path = escape(expand('%:p:h'), ',') .';'
             let depth = -1
             for vcs in keys(g:quickfixsigns#vcsdiff#vcs)
                 let dir = g:quickfixsigns#vcsdiff#vcs[vcs].dir
@@ -126,6 +133,7 @@ function! quickfixsigns#vcsdiff#GuessType() "{{{3
         endif
         let b:vcs_type = type
     endif
+    " TLogVAR type
     if has_key(g:quickfixsigns#vcsdiff#vcs, type)
         return type
     else
